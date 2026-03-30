@@ -1,6 +1,20 @@
 from fastapi import FastAPI
+from pydantic import BaseModel # Importez BaseModel
 import joblib
 
+app = FastAPI()
+model = joblib.load("model.pkl")
+
+# Définir le "contrat" de données
+class PredictionFeatures(BaseModel):
+    feature1: float
+    feature2: float
+
+@app.post("/predict")
+def predict(data: PredictionFeatures): # Utilisez le modèle comme type
+    prediction = model.predict([[data.feature1, data.feature2]])
+    return {"prediction": int(prediction[0])}
+    
 # 1. Initialiser l'application FastAPI
 app = FastAPI(
     title="Mon API de Machine Learning",
