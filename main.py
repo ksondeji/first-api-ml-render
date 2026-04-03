@@ -20,7 +20,6 @@ class PredictionFeatures(BaseModel):
     feature1: float
     feature2: float
 
-
 @app.get("/")
 def read_root():
     return {"message": "Bienvenue sur mon API ML !"}
