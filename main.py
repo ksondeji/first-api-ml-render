@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi import HTTPException
 from typing import List
+from fastapi import Header
 import logging
 
 
@@ -17,6 +18,10 @@ def load_model():
 class PredictionResponse(BaseModel):
     prediction: int
 
+@app.get("/")
+def read_root():
+    return {"message": "Bienvenue sur mon API ML avec FastAPI !"}
+    
 @app.post("/predict", response_model=PredictionResponse)
 def predict(data: PredictionFeatures):
     prediction = model.predict([[data.feature1, data.feature2]])
@@ -32,7 +37,7 @@ def predict(data: PredictionFeatures):
 
 
 def preprocess(data: PredictionFeatures):
-    return [[data.feature1, data.feature2]]  # ici trivial, mais extensible
+    return [[data.feature1, data.feature2]]
 
 X = preprocess(data)
 prediction = model.predict(X)
@@ -52,3 +57,10 @@ def predict(data: PredictionFeatures):
     logging.info(f"Requête reçue: {data}")
     prediction = model.predict([[data.feature1, data.feature2]])
     return {"prediction": int(prediction[0])}
+
+API_KEY = "secret"
+
+def verify_key(x_api_key: str = Header(...)):
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+@app.post("/predict", dependencies=[Depends(verify_key)])
