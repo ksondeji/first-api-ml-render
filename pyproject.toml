@@ -25,6 +25,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Permet `import main` depuis tests/ même si le répertoire courant n’est pas la racine du projet.
+pythonpath = ["."]
 
 [tool.coverage.run]
 branch = true
