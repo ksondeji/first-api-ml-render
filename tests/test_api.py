@@ -13,7 +13,13 @@ def setup_module():
     main.app.router.on_startup.clear()
 
     mock_model = MagicMock()
-    mock_model.predict.return_value = [1]
+
+    def _predict(X):
+        if not X:
+            return []
+        return [1] * len(X)
+
+    mock_model.predict.side_effect = _predict
     main.model = mock_model
 
 
