@@ -10,9 +10,11 @@ API_KEY = "secret"
 # Mock du modèle
 # ------------------------
 def setup_module():
+    main.app.router.on_startup.clear()
+
     mock_model = MagicMock()
     mock_model.predict.return_value = [1]
-    main.model = mock_model  # on remplace le vrai modèle
+    main.model = mock_model
 
 
 # ------------------------
