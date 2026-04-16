@@ -1,8 +1,8 @@
 from fastapi.testclient import TestClient
 from unittest.mock import MagicMock
-from main import app
+import main  # importer le module complet
 
-client = TestClient(app)
+client = TestClient(main.app)
 
 API_KEY = "secret"
 
