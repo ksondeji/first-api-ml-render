@@ -1,9 +1,18 @@
 from fastapi.testclient import TestClient
+from unittest.mock import MagicMock
 from main import app
 
 client = TestClient(app)
 
 API_KEY = "secret"
+
+# ------------------------
+# Mock du modèle
+# ------------------------
+def setup_module():
+    mock_model = MagicMock()
+    mock_model.predict.return_value = [1]
+    main.model = mock_model  # on remplace le vrai modèle
 
 
 # ------------------------
