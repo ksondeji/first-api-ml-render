@@ -1,8 +1,9 @@
-fastapi
-uvicorn
-scikit-learn
-joblib
-pydantic
-typing 
-logging
-unittest
+# Versions alignées pour Python 3.11+ (local et Render).
+# typing, logging et unittest font partie de la bibliothèque standard : pas d'installation via pip.
+fastapi>=0.115,<1
+uvicorn[standard]>=0.32,<1
+scikit-learn>=1.4,<2
+joblib>=1.4,<2
+pydantic>=2.10,<3
+httpx>=0.27,<1
+pytest>=8,<9
