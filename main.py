@@ -1,8 +1,9 @@
-from fastapi import FastAPI, HTTPException, Header, Depends
-from pydantic import BaseModel
-from typing import List
 import logging
 import joblib
+from typing import List
+
+from fastapi import Depends, FastAPI, HTTPException, Header
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -39,6 +40,7 @@ def load_model():
 # Schémas Pydantic
 # ------------------------
 class PredictionFeatures(BaseModel):
+    """Modèle pour les caractéristiques d'entrée de prédiction."""
     feature1: float
     feature2: float
 
@@ -46,6 +48,7 @@ class PredictionResponse(BaseModel):
     prediction: int
 
 class BatchPredictionResponse(BaseModel):
+    """Modèle pour la réponse de prédiction en lot."""
     predictions: List[int]
 
 # ------------------------
@@ -64,27 +67,49 @@ def read_root():
 
 @app.post("/predict", response_model=PredictionResponse, dependencies=[Depends(verify_key)])
 def predict(data: PredictionFeatures):
-    try:
-        logging.info(f"Requête reçue: {data}")
+    """
+    Effectue une prédiction basée sur les caractéristiques fournies.
 
-        X = preprocess(data)
-        prediction = model.predict(X)
+    Args:
+        data: Objet PredictionFeatures avec les caractéristiques d'entrée.
+
+    Returns:
+        Dictionnaire avec la prédiction sous forme d'entier.
+
+    Raises:
+        HTTPException: En cas d'erreur interne.
+    """
+    try:
+        logging.info("Requête reçue: %s", data)
+
+        features = preprocess(data)
+        prediction = model.predict(features)
 
         return {"prediction": int(prediction[0])}
 
     except Exception as e:
-        logging.error(f"Erreur prédiction: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error("Erreur prédiction: %s", e)
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/predict_batch", response_model=BatchPredictionResponse, dependencies=[Depends(verify_key)])
 def predict_batch(data: List[PredictionFeatures]):
+    """
+    Effectue des prédictions en lot sur une liste de caractéristiques.
+
+    Args:
+        data: Liste d'objets PredictionFeatures.
+
+    Returns:
+        Dictionnaire avec les prédictions sous forme d'entiers.
+
+    Raises:
+        HTTPException: En cas d'erreur interne.
+    """
     try:
-        X = [[d.feature1, d.feature2] for d in data]
-        preds = model.predict(X)
-
+        features = [[d.feature1, d.feature2] for d in data]
+        preds = model.predict(features)
         return {"predictions": [int(p) for p in preds]}
-
     except Exception as e:
-        logging.error(f"Erreur batch: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error("Erreur batch: %s", e)
+        raise HTTPException(status_code=500, detail=str(e)) from e
